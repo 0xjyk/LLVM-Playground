@@ -52,19 +52,33 @@ mv HelloWorld.h prof.h
 ```
 #### prof/CMakeLists.txt
 1. Change line 2  
-   From: ``project()``  
+   From: ``project(llvm-tutor-hello-world)``  
    To:   ``project(prof-pass)``       # note: ``prof-pass`` is just a name we give this sub-project  
 2. Change line 36  
-   From: ``add_library(prof SHARED prof.cpp)``  
+   From: ``add_library(HelloWorld SHARED HelloWorld.cpp)``  
    To:   ``add_library(prof SHARED prof.cpp)``  
 3. Change line 40   
    From:  ``target_link_libraries(prof
                 "$<$PLATFORM_ID:Darwin>: -undefined dynamic_lookup>")``  
+#### HelloWorld.cpp
+1. Change line 9  
+   From:  ``#include "HelloWorld.h"``  
+   To:    ``#inlclude "prof.h"`` 
+2. Change line 30  
+   From: ``...HelloWorldPass...``  
+   To:   ``...ProfPass...``  
+3. Change line 38 
+   From:  ``..."HelloWorld"...``  
+   To:    ``..."prof"``  
+4. Change line 43  
+   From: ``..."hw"...``  
+   To:   ``..."prof-llvm"``  
+#### HelloWorld.h
+1. Change line 9  
+   From:  ``..."class HelloWorldPass : public PassInfoMixin<HelloWorldPass> {``  
+   To:    ``..."class ProfPass : public PassInfoMixin<ProfPass> {``  
 
-
-
-
-
+Phew! We're finally done. Now, all that's left to do is to to write the actual pass.  
 
 
 ## Attributions
