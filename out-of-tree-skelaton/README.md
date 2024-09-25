@@ -24,7 +24,42 @@ baz
 main
 ```
 Sweet! Now you're all setup. Next, we need to get rid of all the "hello world" stuff and customize it for out own project
+## Project specific Updates
+There's a lot of room for changes here but, this should atleast get you up and running. 
+Consider a dummy project, with the following structure 
+project: prof-llvm 
+pass directory: prof/
 
+#### Rename HelloWorld/
+``` bash
+# note: prof is the new name that we'd like to give the passes directory
+mv HelloWorld/ prof
+```
+
+#### CMakeLists.txt
+1. Change line 2 
+   From: ``project(llvm-tutor)``
+   To:   ``project(prof-llvm)``     # note: ``prof-llvm`` is the projects name 
+2. Change line 144 
+   From: ``add_subdirectory(HelloWorld)``
+   To:   ``add_subdirectory(prof)    # note: ``prof`` is the pass's directory
+
+#### Rename prof/HelloWorld.(cpp|h)
+``` bash 
+# note: nothing special, just renaming the files
+mv HelloWorld.cpp prof.cpp
+mv HelloWorld.h prof.h
+```
+#### prof/CMakeLists.txtA
+1. Change line 2
+   From: ``project()``
+   To:   ``project(prof-pass)``       # note: ``prof-pass`` is just a name we give this sub-project
+2. Change line 36
+   From: ``add_library(prof SHARED prof.cpp)``
+   To:   ``add_library(prof SHARED prof.cpp)``
+3. Change line 40 
+   From:  ``target_link_libraries(prof
+                "$<$PLATFORM_ID:Darwin>: -undefined dynamic_lookup>")``
 
 
 
@@ -32,4 +67,4 @@ Sweet! Now you're all setup. Next, we need to get rid of all the "hello world" s
 
 
 ## Attributions
-The CMake files, example and directory structure has been sourced from [banach-space/llvm-tutor](https://github.com/banach-space/llvm-tutor/tree/main)
+The CMake files, examples and directory structure has been sourced from [banach-space/llvm-tutor](https://github.com/banach-space/llvm-tutor/tree/main)
