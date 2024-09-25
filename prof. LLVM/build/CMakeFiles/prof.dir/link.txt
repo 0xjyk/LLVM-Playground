@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC  -fno-rtti -shared -Wl,-soname,libprof.so -o libprof.so CMakeFiles/prof.dir/prof.cpp.o 
