@@ -31,5 +31,5 @@ Sweet! Now you're all setup. Next, we need to get rid of all the "hello world" s
 
 
 
-Attributions
+## Attributions
 The CMake files, example and directory structure has been sourced from [banach-space/llvm-tutor](https://github.com/banach-space/llvm-tutor/tree/main)
