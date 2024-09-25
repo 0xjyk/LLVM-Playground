@@ -1,0 +1,9 @@
+/Users/work/Desktop/Projects/LLVM-Playground/ofts-cpy/build/CMakeFiles/intrinsics_gen.dir
+/Users/work/Desktop/Projects/LLVM-Playground/ofts-cpy/build/CMakeFiles/omp_gen.dir
+/Users/work/Desktop/Projects/LLVM-Playground/ofts-cpy/build/CMakeFiles/acc_gen.dir
+/Users/work/Desktop/Projects/LLVM-Playground/ofts-cpy/build/CMakeFiles/ARMTargetParserTableGen.dir
+/Users/work/Desktop/Projects/LLVM-Playground/ofts-cpy/build/CMakeFiles/AArch64TargetParserTableGen.dir
+/Users/work/Desktop/Projects/LLVM-Playground/ofts-cpy/build/CMakeFiles/RISCVTargetParserTableGen.dir
+/Users/work/Desktop/Projects/LLVM-Playground/ofts-cpy/build/CMakeFiles/HelloWorld.dir
+/Users/work/Desktop/Projects/LLVM-Playground/ofts-cpy/build/CMakeFiles/edit_cache.dir
+/Users/work/Desktop/Projects/LLVM-Playground/ofts-cpy/build/CMakeFiles/rebuild_cache.dir

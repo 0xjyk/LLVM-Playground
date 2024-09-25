@@ -1,4 +1,5 @@
 // not original work; original source: https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl02.html
+#include "KaleidoscopeJIT.h"
 #include "llvm/ADT/APFloat.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/IR/BasicBlock.h"
@@ -8,19 +9,31 @@
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
+#include "llvm/IR/PassManager.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Verifier.h"
+#include "llvm/Passes/PassBuilder.h"
+#include "llvm/Passes/StandardInstrumentations.h"
+#include "llvm/Support/TargetSelect.h"
+#include "llvm/Target/TargetMachine.h"
+#include "llvm/Transforms/InstCombine/InstCombine.h"
+#include "llvm/Transforms/Scalar.h"
+#include "llvm/Transforms/Scalar/GVN.h"
+#include "llvm/Transforms/Scalar/Reassociate.h"
+#include "llvm/Transforms/Scalar/SimplifyCFG.h"
 #include <algorithm>
+#include <cassert>
 #include <cctype>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <map>
 #include <memory>
 #include <string>
-#include <utility>
 #include <vector>
 
 using namespace llvm;
+using namespace llvm::orc;
 
 
 
@@ -364,17 +377,26 @@ static std::unique_ptr<PrototypeAST> ParseExtern() {
 static std::unique_ptr<FunctionAST> ParseTopLevelExpr() {
     if (auto E = ParseExpression()) {
         // Make anon proto
-        auto Proto = std::make_unique<PrototypeAST>("", std::vector<std::string>()); 
+        auto Proto = std::make_unique<PrototypeAST>("__anon_expr", std::vector<std::string>()); 
         return std::make_unique<FunctionAST>(std::move(Proto), std::move(E));
     }
     return nullptr;
 }
 // code generation 
-static std::unique_ptr<LLVMContext> TheContext; 
+static std::unique_ptr<LLVMContext> TheContext;
 static std::unique_ptr<Module> TheModule;
 static std::unique_ptr<IRBuilder<>> Builder;
-static std::map<std::string, Value *>NamedValues;
-
+static std::map<std::string, Value *> NamedValues;
+static std::unique_ptr<KaleidoscopeJIT> TheJIT;
+static std::unique_ptr<FunctionPassManager> TheFPM;
+static std::unique_ptr<LoopAnalysisManager> TheLAM;
+static std::unique_ptr<FunctionAnalysisManager> TheFAM;
+static std::unique_ptr<CGSCCAnalysisManager> TheCGAM;
+static std::unique_ptr<ModuleAnalysisManager> TheMAM;
+static std::unique_ptr<PassInstrumentationCallbacks> ThePIC;
+static std::unique_ptr<StandardInstrumentations> TheSI;
+static std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
+static ExitOnError ExitOnErr;
 Value *LogErrorV(const char *Str) {
     LogError(Str); 
     return nullptr;
@@ -475,6 +497,9 @@ Function *FunctionAST::codegen() {
         // Validate the generated code, checking for consistency
         verifyFunction(*TheFunction);
 
+        // optimize the function
+        TheFPM->run(*TheFunction, *TheFAM);
+
         return TheFunction;
     }
     TheFunction->eraseFromParent();
@@ -485,13 +510,41 @@ Function *FunctionAST::codegen() {
 
 // top-level parsing and JIT driver
 
-static void InitializeModule() {
+void InitializeModuleAndManagers(void) {
     // Open a new context and module
     TheContext = std::make_unique<LLVMContext>(); 
-    TheModule = std::make_unique<Module>("my cool jit", *TheContext);
+    TheModule = std::make_unique<Module>("KaleidoscopeJIT", *TheContext);
+    TheModule->setDataLayout(TheJIT->getDataLayout());
 
     // Create a new builder for the module
     Builder = std::make_unique<IRBuilder<>>(*TheContext);
+
+
+    // create new pass and analysis mangers
+    TheFPM = std::make_unique<FunctionPassManager>();
+    TheLAM = std::make_unique<LoopAnalysisManager>(); 
+    TheFAM = std::make_unique<FunctionAnalysisManager>();
+    TheCGAM = std::make_unique<CGSCCAnalysisManager>(); 
+    TheMAM = std::make_unique<ModuleAnalysisManager>();
+    ThePIC = std::make_unique<PassInstrumentationCallbacks>(); 
+    TheSI = std::make_unique<StandardInstrumentations>(*TheContext, true);
+    TheSI->registerCallbacks(*ThePIC, TheMAM.get());
+
+    // add transform passes 
+    // do simple "peephole" optimizations and bit-twiddling optimizations
+    TheFPM->addPass(InstCombinePass());
+    // Reassociate expressions
+    TheFPM->addPass(ReassociatePass());
+    // Eliminate Common SubExpressions
+    TheFPM->addPass(GVNPass());
+    // Simplify the control flow graph (deleting unreachable blocks, etc)
+    TheFPM->addPass(SimplifyCFGPass());
+
+    // Register analysis passes used in these transform passes
+    PassBuilder PB; 
+    PB.registerModuleAnalyses(*TheMAM); 
+    PB.registerFunctionAnalyses(*TheFAM);
+    PB.crossRegisterProxies(*TheLAM, *TheFAM, *TheCGAM, *TheMAM);
 
 }
 
@@ -525,14 +578,26 @@ static void HandleExtern() {
 static void HandleTopLevelExpression() {
     // Evaluate a top-level expression into an anon function
     if (auto FnAST = ParseTopLevelExpr()) {
-        if (auto *FnIR = FnAST->codegen()) {
-            fprintf(stderr, "Read top-level expression:");
-            FnIR->print(errs());
-            fprintf(stderr, "\n");
+       if (FnAST->codegen()) {
+           // Create a ResourceTracker to track JIT's memory allocated to our
+           // anonymous expression - that way we can free it after executing 
+           auto RT = TheJIT->getMainJITDylib().createResourceTracker();
 
-            // Remove the anon expression
-            FnIR->eraseFromParent();
-        }
+           auto TSM = ThreadSafeModule(std::move(TheModule), std::move(TheContext));
+           ExitOnErr(TheJIT->addModule(std::move(TSM), RT));
+           InitializeModuleAndManagers();
+
+           // Search the JIT for the __anon_expr symbol 
+           auto ExprSymbol = ExitOnErr(TheJIT->lookup("__anon_expr"));
+
+           // get the symbols address and cast it to the right type (takes no
+           // arguments, returns a doube) so we can call it as a native function
+           double (*FP)() = ExprSymbol.getAddress().toPtr<double (*)()>();
+           fprintf(stderr, "Evaluated to %f\n", FP());
+
+           // Delete the anon expression module from the JIT
+           ExitOnErr(RT->remove());
+       }
     } else {
         // skip token for error recovery
         getNextToken();
@@ -572,6 +637,9 @@ static void MainLoop() {
 // main driver
 
 int main() {
+    InitializeNativeTarget(); 
+    InitializeNativeTargetAsmPrinter();
+    InitializeNativeTargetAsmParser();
     // install standard binary operators 
     // 1 is lowest precedence 
     BinopPrecedence['<'] = 10; 
@@ -582,9 +650,9 @@ int main() {
     // prime the first token
     fprintf(stderr, "ready> "); 
     getNextToken(); 
-
-    // Make the module, which holds all the code 
-    InitializeModule();
+    
+    TheJIT = ExitOnErr(KaleidoscopeJIT::Create());
+    InitializeModuleAndManagers();
 
     // run the main "interpretter loop" now
     MainLoop(); 

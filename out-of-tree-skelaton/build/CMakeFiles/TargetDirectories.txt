@@ -1,0 +1,9 @@
+/Users/work/Desktop/Projects/LLVM-Playground/out-of-tree-skelaton/build/CMakeFiles/intrinsics_gen.dir
+/Users/work/Desktop/Projects/LLVM-Playground/out-of-tree-skelaton/build/CMakeFiles/omp_gen.dir
+/Users/work/Desktop/Projects/LLVM-Playground/out-of-tree-skelaton/build/CMakeFiles/acc_gen.dir
+/Users/work/Desktop/Projects/LLVM-Playground/out-of-tree-skelaton/build/CMakeFiles/ARMTargetParserTableGen.dir
+/Users/work/Desktop/Projects/LLVM-Playground/out-of-tree-skelaton/build/CMakeFiles/AArch64TargetParserTableGen.dir
+/Users/work/Desktop/Projects/LLVM-Playground/out-of-tree-skelaton/build/CMakeFiles/RISCVTargetParserTableGen.dir
+/Users/work/Desktop/Projects/LLVM-Playground/out-of-tree-skelaton/build/CMakeFiles/HelloWorld.dir
+/Users/work/Desktop/Projects/LLVM-Playground/out-of-tree-skelaton/build/CMakeFiles/edit_cache.dir
+/Users/work/Desktop/Projects/LLVM-Playground/out-of-tree-skelaton/build/CMakeFiles/rebuild_cache.dir

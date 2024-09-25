@@ -1,0 +1,7 @@
+digraph "Call graph: diag.ll" {
+	label="Call graph: diag.ll";
+
+	Node0x600003bfc0f0 [shape=record,label="{fact}"];
+	Node0x600003bfc180 [shape=record,label="{main}"];
+	Node0x600003bfc180 -> Node0x600003bfc0f0;
+}
