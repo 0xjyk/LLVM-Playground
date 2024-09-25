@@ -50,16 +50,17 @@ mv HelloWorld/ prof
 mv HelloWorld.cpp prof.cpp
 mv HelloWorld.h prof.h
 ```
-#### prof/CMakeLists.txtA
-1. Change line 2
-   From: ``project()``
-   To:   ``project(prof-pass)``       # note: ``prof-pass`` is just a name we give this sub-project
-2. Change line 36
-   From: ``add_library(prof SHARED prof.cpp)``
-   To:   ``add_library(prof SHARED prof.cpp)``
-3. Change line 40 
+#### prof/CMakeLists.txt
+1. Change line 2  
+   From: ``project()``  
+   To:   ``project(prof-pass)``       # note: ``prof-pass`` is just a name we give this sub-project  
+2. Change line 36  
+   From: ``add_library(prof SHARED prof.cpp)``  
+   To:   ``add_library(prof SHARED prof.cpp)``  
+3. Change line 40   
    From:  ``target_link_libraries(prof
-                "$<$PLATFORM_ID:Darwin>: -undefined dynamic_lookup>")``
+                "$<$PLATFORM_ID:Darwin>: -undefined dynamic_lookup>")``  
+
 
 
 
