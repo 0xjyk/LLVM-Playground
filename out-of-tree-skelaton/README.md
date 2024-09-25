@@ -36,7 +36,7 @@ pass directory: prof/
 mv HelloWorld/ prof
 ```
 
-#### CMakeLists.txt
+#### Update CMakeLists.txt
 1. Change line 2 
    From: ``project(llvm-tutor)``
    To:   ``project(prof-llvm)``     # note: ``prof-llvm`` is the projects name 
@@ -50,7 +50,7 @@ mv HelloWorld/ prof
 mv HelloWorld.cpp prof.cpp
 mv HelloWorld.h prof.h
 ```
-#### prof/CMakeLists.txt
+#### Update prof/CMakeLists.txt
 1. Change line 2  
    From: ``project(llvm-tutor-hello-world)``  
    To:   ``project(prof-pass)``       # note: ``prof-pass`` is just a name we give this sub-project  
@@ -60,7 +60,7 @@ mv HelloWorld.h prof.h
 3. Change line 40   
    From:  ``target_link_libraries(prof
                 "$<$PLATFORM_ID:Darwin>: -undefined dynamic_lookup>")``  
-#### HelloWorld.cpp
+#### Update HelloWorld.cpp
 1. Change line 9  
    From:  ``#include "HelloWorld.h"``  
    To:    ``#inlclude "prof.h"`` 
@@ -73,7 +73,7 @@ mv HelloWorld.h prof.h
 4. Change line 43  
    From: ``..."hw"...``  
    To:   ``..."prof-llvm"``  
-#### HelloWorld.h
+#### Update HelloWorld.h
 1. Change line 9  
    From:  ``..."class HelloWorldPass : public PassInfoMixin<HelloWorldPass> {``  
    To:    ``..."class ProfPass : public PassInfoMixin<ProfPass> {``  
