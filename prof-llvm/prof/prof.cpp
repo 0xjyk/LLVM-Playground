@@ -1,99 +1,95 @@
 #include "prof.h"
 
-#include "llvm/Passes/PassBuilder.h"
+#include "llvm/IR/IRBuilder.h"
 #include "llvm/Passes/PassPlugin.h"
+#include "llvm/Passes/PassBuilder.h"
+#include "llvm/IR/Module.h"
+using namespace llvm; 
 
-using namespace llvm;
-
-// pretty prints the resutl of the analysis
-static void printOpcodeCounterResult(llvm::raw_ostream &, 
-        const ResultOpCounter &OC, StringRef name); 
+#define DEBUG_TYPE "inject-func-call"
 
 
-// OpcodeCounter implementation
-llvm::AnalysisKey OpcodeCounter::Key;
+// InjectFuncCall implementation 
 
-OpcodeCounter::Result OpcodeCounter::generateOpcodeMap(llvm::Function &F) {
-    OpcodeCounter::Result OpcodeMap; 
+bool InjectFuncCall::runOnModule(Module &M) {
+    bool InsertedAtLeastOnePrintf = false; 
 
-    for (auto &BB : F) {
-        for (auto &Inst : BB) {
-            StringRef Name = Inst.getOpcodeName();
-            if (OpcodeMap.find(Name) == OpcodeMap.end())
-                OpcodeMap[Inst.getOpcodeName()] = 1;
-            else 
-                OpcodeMap[Inst.getOpcodeName()]++;
-        }
+    auto &CTX = M.getContext();
+    PointerType *PrintfArgTy = PointerType::getUnqual(Type::getInt8Ty(CTX));
+
+    // step 1: Inject the declaration of printf
+    FunctionType *PrintfTy = FunctionType::get(
+            IntegerType::getInt32Ty(CTX), 
+            PrintfArgTy, 
+            true);
+    FunctionCallee Printf = M.getOrInsertFunction("printf", PrintfTy);
+
+    // Set attributes as per inferLibFuncAttributes in BuildLibCalls.cpp
+    Function *PrintfF = dyn_cast<Function>(Printf.getCallee());
+    PrintfF->setDoesNotThrow(); 
+    PrintfF->addParamAttr(0, Attribute::NoCapture);
+    PrintfF->addParamAttr(0, Attribute::ReadOnly);
+
+    // Step 2: Inject a global variable that will hold the printf format string
+
+    llvm::Constant *PrintfFormatStr = llvm::ConstantDataArray::getString(
+            CTX, "Hello from: %s\n; number of arguments: %d\n");
+    Constant *PrintfFormatStrVar = 
+        M.getOrInsertGlobal("PrintfFormatStr", PrintfFormatStr->getType());
+    dyn_cast<GlobalVariable>(PrintfFormatStrVar)->setInitializer(PrintfFormatStr);
+
+    // Step 3: For each function in the module, inject a call to printf
+    for (auto &F : M) {
+        if (F.isDeclaration())
+            continue;
+        // Get an IR builder. Sets the insertion point to the top of the function 
+        IRBuilder<> Builder(&*F.getEntryBlock().getFirstInsertionPt());
+
+        // Inject a global variable that contains the function name
+        auto FuncName = Builder.CreateGlobalStringPtr(F.getName());
+
+        // Printf requires i8*, but PrintFormatStrVar is an array: [n x i8]. 
+        // Add a cast: [n x i8] ->i8*
+        llvm::Value *FormatStrPtr = 
+            Builder.CreatePointerCast(PrintfFormatStrVar, PrintfArgTy, "formatStr");
+
+        // Finally, inject a call to printf
+        Builder.CreateCall(
+                Printf, {FormatStrPtr, FuncName, Builder.getInt32(F.arg_size())});
+        InsertedAtLeastOnePrintf = true;
     }
-    return OpcodeMap;
+    return InsertedAtLeastOnePrintf;
 }
 
-OpcodeCounter::Result OpcodeCounter::run(llvm::Function &F, llvm::FunctionAnalysisManager &) {
-    return generateOpcodeMap(F);
+PreservedAnalyses InjectFuncCall::run(llvm::Module &M, 
+                                      llvm::ModuleAnalysisManager &) {
+    bool Changed = runOnModule(M);
+    return (Changed ? llvm::PreservedAnalyses::none()
+                    : llvm::PreservedAnalyses::all());
 }
 
-llvm::PreservedAnalyses OpcodeCounterPrinter::run(llvm::Function &F, 
-        llvm::FunctionAnalysisManager &FAM) {
-    auto &OpcodeMap = FAM.getResult<OpcodeCounter>(F);
 
 
-    printOpcodeCounterResult(OS, OpcodeMap, F.getName());
-    return PreservedAnalyses::all();
-}
 
+//-----------------------------------------------------------------------------
 // New PM Registration
-
-llvm::PassPluginLibraryInfo getOpcodeCounterPluginInfo() {
-    return {
-        LLVM_PLUGIN_API_VERSION, "OpcodeCounter", LLVM_VERSION_STRING, 
-        [](PassBuilder &PB) {
-            // #1 registration for "opt -passes=print<opcode-counter>"
-            // Register OpcodeCounterPrinter so that it can be used when 
-            // specifying pass pipelines with '-passes='
+//-----------------------------------------------------------------------------
+llvm::PassPluginLibraryInfo getInjectFuncCallPluginInfo() {
+  return {LLVM_PLUGIN_API_VERSION, "inject-func-call", LLVM_VERSION_STRING,
+          [](PassBuilder &PB) {
             PB.registerPipelineParsingCallback(
-                [&](StringRef Name, FunctionPassManager &FPM, 
-                    ArrayRef<PassBuilder::PipelineElement>) {
-                    if (Name == "print<opcode-counter>") {
-                        FPM.addPass(OpcodeCounterPrinter(llvm::errs()));
-                        return true;
-                    }
-                    return false; 
-                    });
-            // #2 registration for "-O{1|2|3|s}"
-            PB.registerVectorizerStartEPCallback(
-                [](llvm::FunctionPassManager &PM, 
-                    llvm::OptimizationLevel Level) {
-                    PM.addPass(OpcodeCounterPrinter(llvm::errs()));
+                [](StringRef Name, ModulePassManager &MPM,
+                   ArrayRef<PassBuilder::PipelineElement>) {
+                  if (Name == "inject-func-call") {
+                    MPM.addPass(InjectFuncCall());
+                    return true;
+                  }
+                  return false;
                 });
-            // #3 registration for "FAM.getResult<OpcodeCounter>(Func)"
-            PB.registerAnalysisRegistrationCallback(
-                    [](FunctionAnalysisManager &FAM) {
-                    FAM.registerPass([&] { return OpcodeCounter(); });
-                    });
-        }};
+          }};
 }
 
-extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo 
+extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo
 llvmGetPassPluginInfo() {
-    return getOpcodeCounterPluginInfo(); 
-}
-
-// Helper functions - implementation 
-static void printOpcodeCounterResult(raw_ostream &OutS, 
-        const ResultOpCounter &OpcodeMap, StringRef name) {
-    OutS << "================================================="
-         << "\n";
-    OutS << "OpcodeCounter results " << name << "\n";
-    OutS << "=================================================\n";
-    const char *str1 = "OPCODE";
-    const char *str2 = "#TIMES USED";
-    OutS << format("%-20s %-10s\n", str1, str2);
-    OutS << "-------------------------------------------------"
-         << "\n";
-    for (auto &Inst : OpcodeMap) {
-    OutS << format("%-20s %-10lu\n", Inst.first().str().c_str(),
-                           Inst.second);
-    }
-    OutS << "-------------------------------------------------"
-         << "\n\n";
+  return getInjectFuncCallPluginInfo();
 }

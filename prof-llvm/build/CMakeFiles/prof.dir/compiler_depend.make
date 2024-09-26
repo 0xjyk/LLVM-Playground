@@ -99,6 +99,7 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
   /root/repos/llvm-project/llvm/include/llvm/IR/BasicBlock.h \
   /root/repos/llvm-project/llvm/include/llvm/IR/CFG.h \
   /root/repos/llvm-project/llvm/include/llvm/IR/CallingConv.h \
+  /root/repos/llvm-project/llvm/include/llvm/IR/Comdat.h \
   /root/repos/llvm-project/llvm/include/llvm/IR/Constant.h \
   /root/repos/llvm-project/llvm/include/llvm/IR/ConstantFold.h \
   /root/repos/llvm-project/llvm/include/llvm/IR/ConstantFolder.h \
@@ -119,6 +120,8 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
   /root/repos/llvm-project/llvm/include/llvm/IR/FixedMetadataKinds.def \
   /root/repos/llvm-project/llvm/include/llvm/IR/Function.h \
   /root/repos/llvm-project/llvm/include/llvm/IR/GEPNoWrapFlags.h \
+  /root/repos/llvm-project/llvm/include/llvm/IR/GlobalAlias.h \
+  /root/repos/llvm-project/llvm/include/llvm/IR/GlobalIFunc.h \
   /root/repos/llvm-project/llvm/include/llvm/IR/GlobalObject.h \
   /root/repos/llvm-project/llvm/include/llvm/IR/GlobalValue.h \
   /root/repos/llvm-project/llvm/include/llvm/IR/GlobalVariable.h \
@@ -134,11 +137,13 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
   /root/repos/llvm-project/llvm/include/llvm/IR/LLVMContext.h \
   /root/repos/llvm-project/llvm/include/llvm/IR/Metadata.def \
   /root/repos/llvm-project/llvm/include/llvm/IR/Metadata.h \
+  /root/repos/llvm-project/llvm/include/llvm/IR/Module.h \
   /root/repos/llvm-project/llvm/include/llvm/IR/OperandTraits.h \
   /root/repos/llvm-project/llvm/include/llvm/IR/Operator.h \
   /root/repos/llvm-project/llvm/include/llvm/IR/PassInstrumentation.h \
   /root/repos/llvm-project/llvm/include/llvm/IR/PassManager.h \
   /root/repos/llvm-project/llvm/include/llvm/IR/PassManagerInternal.h \
+  /root/repos/llvm-project/llvm/include/llvm/IR/ProfileSummary.h \
   /root/repos/llvm-project/llvm/include/llvm/IR/PseudoProbe.h \
   /root/repos/llvm-project/llvm/include/llvm/IR/SymbolTableListTraits.h \
   /root/repos/llvm-project/llvm/include/llvm/IR/TrackingMDRef.h \
@@ -780,11 +785,19 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
 
 /usr/include/c++/13/bits/exception_defines.h:
 
+/usr/include/c++/13/bits/exception.h:
+
+/usr/include/c++/13/bits/cxxabi_init_exception.h:
+
+/usr/include/c++/13/bits/cxxabi_forced.h:
+
 /usr/include/stdc-predef.h:
 
 /root/repos/llvm-project/llvm/include/llvm/IR/GlobalValue.h:
 
 /root/repos/llvm-project/llvm/include/llvm/IR/GlobalObject.h:
+
+/root/repos/llvm-project/llvm/include/llvm/Support/Recycler.h:
 
 /root/repos/llvm-project/llvm/include/llvm/IR/GEPNoWrapFlags.h:
 
@@ -804,6 +817,12 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
 
 /root/repos/llvm-project/llvm/include/llvm/IR/DataLayout.h:
 
+/root/repos/llvm-project/llvm/include/llvm/IR/IntrinsicInst.h:
+
+/root/repos/llvm-project/llvm/include/llvm/ADT/SmallPtrSet.h:
+
+/root/repos/llvm-project/llvm/include/llvm/Support/PointerLikeTypeTraits.h:
+
 /root/repos/llvm-project/llvm/include/llvm/IR/CallingConv.h:
 
 /root/repos/llvm-project/llvm/include/llvm/IR/Argument.h:
@@ -817,6 +836,8 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
 /root/repos/llvm-project/llvm/include/llvm/Support/ErrorOr.h:
 
 /root/repos/llvm-project/llvm/include/llvm/CodeGenTypes/MachineValueType.h:
+
+/root/repos/llvm-project/llvm/include/llvm/IR/GlobalIFunc.h:
 
 /root/repos/llvm-project/llvm/include/llvm/Transforms/IPO/Inliner.h:
 
@@ -845,6 +866,12 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
 /root/repos/llvm-project/llvm/include/llvm/CodeGen/PseudoSourceValue.h:
 
 /root/repos/llvm-project/build/include/llvm/IR/Attributes.inc:
+
+/usr/include/c++/13/bits/stl_list.h:
+
+/usr/include/c++/13/bits/erase_if.h:
+
+/root/repos/llvm-project/llvm/include/llvm/CodeGen/MachineMemOperand.h:
 
 /root/repos/llvm-project/llvm/include/llvm/IR/DbgVariableFragmentInfo.h:
 
@@ -879,10 +906,6 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
 /root/repos/llvm-project/llvm/include/llvm/CodeGen/MachineInstr.h:
 
 /root/repos/llvm-project/llvm/include/llvm/IR/Attributes.h:
-
-/usr/include/c++/13/bits/unordered_map.h:
-
-/root/repos/llvm-project/llvm/include/llvm/ADT/SmallString.h:
 
 /root/repos/llvm-project/llvm/include/llvm/ADT/bit.h:
 
@@ -934,6 +957,8 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
 
 /root/repos/llvm-project/llvm/include/llvm/ADT/simple_ilist.h:
 
+/root/repos/llvm-project/llvm/include/llvm/IR/GlobalAlias.h:
+
 /usr/include/c++/13/bits/atomic_base.h:
 
 /usr/include/x86_64-linux-gnu/bits/sched.h:
@@ -964,6 +989,12 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
 
 /root/repos/llvm-project/llvm/include/llvm/ADT/Bitfields.h:
 
+/usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
+
+/usr/include/c++/13/bits/enable_special_members.h:
+
+/root/repos/llvm-project/llvm/include/llvm/CodeGenTypes/LowLevelType.h:
+
 /root/repos/llvm-project/llvm/include/llvm/ADT/ArrayRef.h:
 
 /root/repos/llvm-project/llvm/include/llvm/Support/Mutex.h:
@@ -979,12 +1010,6 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
 /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h:
 
 /root/repos/llvm-project/llvm/include/llvm/ADT/ilist_node.h:
-
-/root/repos/llvm-project/llvm/include/llvm/IR/InstrTypes.h:
-
-/usr/include/c++/13/bits/std_mutex.h:
-
-/root/repos/llvm-project/llvm/include/llvm/ADT/PointerUnion.h:
 
 /root/repos/llvm-project/llvm/include/llvm/IR/FPEnv.h:
 
@@ -1019,6 +1044,12 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
 /usr/include/c++/13/ext/concurrence.h:
 
 /root/repos/llvm-project/llvm/include/llvm/ADT/DenseMapInfo.h:
+
+/usr/include/c++/13/bits/unordered_map.h:
+
+/root/repos/llvm-project/llvm/include/llvm/ADT/SmallString.h:
+
+/root/repos/llvm-project/llvm/include/llvm/IR/Module.h:
 
 /usr/include/c++/13/pstl/glue_memory_defs.h:
 
@@ -1100,9 +1131,11 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
 
 /root/repos/llvm-project/llvm/include/llvm/ADT/ilist_node_base.h:
 
-/root/repos/llvm-project/llvm/include/llvm/IR/Instruction.def:
+/usr/include/c++/13/bits/std_mutex.h:
 
-/root/repos/llvm-project/llvm/include/llvm/ADT/StringRef.h:
+/root/repos/llvm-project/llvm/include/llvm/ADT/PointerUnion.h:
+
+/root/repos/llvm-project/llvm/include/llvm/IR/InstrTypes.h:
 
 /usr/include/c++/13/bits/hash_bytes.h:
 
@@ -1126,6 +1159,8 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
 
 /usr/include/c++/13/string:
 
+/root/repos/llvm-project/llvm/include/llvm/IR/Comdat.h:
+
 /root/repos/llvm-project/llvm/include/llvm/IR/IRBuilderFolder.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h:
@@ -1144,12 +1179,6 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
 
 /root/repos/llvm-project/llvm/include/llvm/IR/Metadata.h:
 
-/root/repos/llvm-project/llvm/include/llvm/IR/IntrinsicInst.h:
-
-/root/repos/llvm-project/llvm/include/llvm/ADT/SmallPtrSet.h:
-
-/root/repos/llvm-project/llvm/include/llvm/Support/PointerLikeTypeTraits.h:
-
 /root/repos/llvm-project/llvm/include/llvm/IR/ValueMap.h:
 
 /root/repos/llvm-project/llvm/include/llvm/ADT/ilist_base.h:
@@ -1163,6 +1192,10 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
 /usr/include/c++/13/pstl/execution_defs.h:
 
 /root/repos/llvm-project/llvm/include/llvm/ADT/StringSwitch.h:
+
+/root/repos/llvm-project/llvm/include/llvm/ADT/StringRef.h:
+
+/root/repos/llvm-project/llvm/include/llvm/IR/Instruction.def:
 
 /usr/include/x86_64-linux-gnu/bits/time64.h:
 
@@ -1188,6 +1221,8 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
 
 /root/repos/llvm-project/llvm/include/llvm/MC/MCInst.h:
 
+/root/repos/llvm-project/llvm/include/llvm/IR/ProfileSummary.h:
+
 /usr/include/x86_64-linux-gnu/c++/13/bits/gthr.h:
 
 /root/repos/llvm-project/llvm/include/llvm/Support/BranchProbability.h:
@@ -1195,8 +1230,6 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
 /root/repos/llvm-project/llvm/include/llvm/IR/PseudoProbe.h:
 
 /root/repos/llvm-project/llvm/include/llvm/IR/SymbolTableListTraits.h:
-
-/usr/include/c++/13/bits/exception.h:
 
 /root/repos/llvm-project/llvm/include/llvm/IR/Value.def:
 
@@ -1340,8 +1373,6 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
 
 /root/repos/llvm-project/llvm/include/llvm/Support/Printable.h:
 
-/root/repos/llvm-project/llvm/include/llvm/Support/Recycler.h:
-
 /root/repos/llvm-project/llvm/include/llvm/Support/ReverseIteration.h:
 
 /root/repos/llvm-project/llvm/include/llvm/MC/MCTargetOptions.h:
@@ -1387,12 +1418,6 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
 /usr/include/x86_64-linux-gnu/bits/local_lim.h:
 
 /root/repos/llvm-project/llvm/include/llvm/Transforms/Utils/LoopUtils.h:
-
-/usr/include/c++/13/bits/stl_list.h:
-
-/root/repos/llvm-project/llvm/include/llvm/CodeGen/MachineMemOperand.h:
-
-/usr/include/c++/13/bits/erase_if.h:
 
 /root/repos/llvm-project/llvm/include/llvm/IR/Use.h:
 
@@ -1447,13 +1472,3 @@ CMakeFiles/prof.dir/prof.cpp.o: /root/projects/LLVM-Playground/prof-llvm/prof/pr
 /usr/include/x86_64-linux-gnu/bits/endianness.h:
 
 /usr/include/c++/13/bits/chrono.h:
-
-/usr/include/c++/13/bits/cxxabi_forced.h:
-
-/usr/include/c++/13/bits/cxxabi_init_exception.h:
-
-/usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
-
-/root/repos/llvm-project/llvm/include/llvm/CodeGenTypes/LowLevelType.h:
-
-/usr/include/c++/13/bits/enable_special_members.h:

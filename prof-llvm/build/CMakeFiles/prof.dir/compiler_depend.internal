@@ -100,6 +100,7 @@ CMakeFiles/prof.dir/prof.cpp.o
  /root/repos/llvm-project/llvm/include/llvm/IR/BasicBlock.h
  /root/repos/llvm-project/llvm/include/llvm/IR/CFG.h
  /root/repos/llvm-project/llvm/include/llvm/IR/CallingConv.h
+ /root/repos/llvm-project/llvm/include/llvm/IR/Comdat.h
  /root/repos/llvm-project/llvm/include/llvm/IR/Constant.h
  /root/repos/llvm-project/llvm/include/llvm/IR/ConstantFold.h
  /root/repos/llvm-project/llvm/include/llvm/IR/ConstantFolder.h
@@ -120,6 +121,8 @@ CMakeFiles/prof.dir/prof.cpp.o
  /root/repos/llvm-project/llvm/include/llvm/IR/FixedMetadataKinds.def
  /root/repos/llvm-project/llvm/include/llvm/IR/Function.h
  /root/repos/llvm-project/llvm/include/llvm/IR/GEPNoWrapFlags.h
+ /root/repos/llvm-project/llvm/include/llvm/IR/GlobalAlias.h
+ /root/repos/llvm-project/llvm/include/llvm/IR/GlobalIFunc.h
  /root/repos/llvm-project/llvm/include/llvm/IR/GlobalObject.h
  /root/repos/llvm-project/llvm/include/llvm/IR/GlobalValue.h
  /root/repos/llvm-project/llvm/include/llvm/IR/GlobalVariable.h
@@ -135,11 +138,13 @@ CMakeFiles/prof.dir/prof.cpp.o
  /root/repos/llvm-project/llvm/include/llvm/IR/LLVMContext.h
  /root/repos/llvm-project/llvm/include/llvm/IR/Metadata.def
  /root/repos/llvm-project/llvm/include/llvm/IR/Metadata.h
+ /root/repos/llvm-project/llvm/include/llvm/IR/Module.h
  /root/repos/llvm-project/llvm/include/llvm/IR/OperandTraits.h
  /root/repos/llvm-project/llvm/include/llvm/IR/Operator.h
  /root/repos/llvm-project/llvm/include/llvm/IR/PassInstrumentation.h
  /root/repos/llvm-project/llvm/include/llvm/IR/PassManager.h
  /root/repos/llvm-project/llvm/include/llvm/IR/PassManagerInternal.h
+ /root/repos/llvm-project/llvm/include/llvm/IR/ProfileSummary.h
  /root/repos/llvm-project/llvm/include/llvm/IR/PseudoProbe.h
  /root/repos/llvm-project/llvm/include/llvm/IR/SymbolTableListTraits.h
  /root/repos/llvm-project/llvm/include/llvm/IR/TrackingMDRef.h

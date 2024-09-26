@@ -8,7 +8,7 @@ define dso_local i32 @foo(i32 noundef %0) #0 {
   %2 = alloca i32, align 4
   store i32 %0, ptr %2, align 4
   %3 = load i32, ptr %2, align 4
-  %4 = add nsw i32 %3, 2
+  %4 = mul nsw i32 %3, 2
   ret i32 %4
 }
 
