@@ -1,4 +1,4 @@
-# Install script for directory: /root/projects/LLVM-Playground/prof. LLVM/prof
+# Install script for directory: /root/projects/LLVM-Playground/prof-llvm/prof
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/root/projects/LLVM-Playground/prof. LLVM/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/root/projects/LLVM-Playground/prof-llvm/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

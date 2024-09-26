@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = "/root/projects/LLVM-Playground/prof. LLVM/prof"
+CMAKE_SOURCE_DIR = /root/projects/LLVM-Playground/prof-llvm/prof
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = "/root/projects/LLVM-Playground/prof. LLVM/build"
+CMAKE_BINARY_DIR = /root/projects/LLVM-Playground/prof-llvm/build
 
 # Utility rule file for ARMTargetParserTableGen.
 
@@ -78,6 +78,6 @@ CMakeFiles/ARMTargetParserTableGen.dir/clean:
 .PHONY : CMakeFiles/ARMTargetParserTableGen.dir/clean
 
 CMakeFiles/ARMTargetParserTableGen.dir/depend:
-	cd "/root/projects/LLVM-Playground/prof. LLVM/build" && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" "/root/projects/LLVM-Playground/prof. LLVM/prof" "/root/projects/LLVM-Playground/prof. LLVM/prof" "/root/projects/LLVM-Playground/prof. LLVM/build" "/root/projects/LLVM-Playground/prof. LLVM/build" "/root/projects/LLVM-Playground/prof. LLVM/build/CMakeFiles/ARMTargetParserTableGen.dir/DependInfo.cmake" "--color=$(COLOR)"
+	cd /root/projects/LLVM-Playground/prof-llvm/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /root/projects/LLVM-Playground/prof-llvm/prof /root/projects/LLVM-Playground/prof-llvm/prof /root/projects/LLVM-Playground/prof-llvm/build /root/projects/LLVM-Playground/prof-llvm/build /root/projects/LLVM-Playground/prof-llvm/build/CMakeFiles/ARMTargetParserTableGen.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/ARMTargetParserTableGen.dir/depend
 

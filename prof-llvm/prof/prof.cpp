@@ -1,105 +1,99 @@
+#include "prof.h"
+
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Passes/PassPlugin.h"
 
-// pass specific includes
-#include "prof.h"
-
-
 using namespace llvm;
 
-// pretty prints the result of this analysis 
-static void printStaticCCResult(raw_ostream &OutS, const ResultStaticCC &DirectCalls);
+// pretty prints the resutl of the analysis
+static void printOpcodeCounterResult(llvm::raw_ostream &, 
+        const ResultOpCounter &OC, StringRef name); 
 
-// StaticCallCounter Implementation
-StaticCallCounter::Result StaticCallCounter::runOnModule(Module &M) {
-    MapVector<const Function *, unsigned> Res;
-    for (auto &Func : M) {
-        for (auto &BB : Func) {
-            for (auto &Ins : BB) {
-                // If this is a call instruction then CB will not be null 
-                auto *CB = dyn_cast<CallBase>(&Ins);
-                if (nullptr == CB)
-                    continue;
 
-                // If CB is a direct function call then DirectInvoc will not be null
-                auto DirectInvoc = CB->getCalledFunction(); 
-                if (nullptr == DirectInvoc)
-                    continue;
+// OpcodeCounter implementation
+llvm::AnalysisKey OpcodeCounter::Key;
 
-                // we have a direct function call - update the count for the function
-                auto CallCount = Res.find(DirectInvoc);
-                if (Res.end() == CallCount) {
-                    CallCount = Res.insert(std::make_pair(DirectInvoc, 0)).first;
-                }
-                ++CallCount->second;
-            }
+OpcodeCounter::Result OpcodeCounter::generateOpcodeMap(llvm::Function &F) {
+    OpcodeCounter::Result OpcodeMap; 
+
+    for (auto &BB : F) {
+        for (auto &Inst : BB) {
+            StringRef Name = Inst.getOpcodeName();
+            if (OpcodeMap.find(Name) == OpcodeMap.end())
+                OpcodeMap[Inst.getOpcodeName()] = 1;
+            else 
+                OpcodeMap[Inst.getOpcodeName()]++;
         }
     }
-    return Res;
+    return OpcodeMap;
 }
 
-PreservedAnalyses StaticCallCounterPrinter::run(Module &M, ModuleAnalysisManager &MAM) {
-    auto DirectCalls = MAM.getResult<StaticCallCounter>(M); 
-    
-    printStaticCCResult(OS, DirectCalls);
+OpcodeCounter::Result OpcodeCounter::run(llvm::Function &F, llvm::FunctionAnalysisManager &) {
+    return generateOpcodeMap(F);
+}
+
+llvm::PreservedAnalyses OpcodeCounterPrinter::run(llvm::Function &F, 
+        llvm::FunctionAnalysisManager &FAM) {
+    auto &OpcodeMap = FAM.getResult<OpcodeCounter>(F);
+
+
+    printOpcodeCounterResult(OS, OpcodeMap, F.getName());
     return PreservedAnalyses::all();
 }
 
-StaticCallCounter::Result
-StaticCallCounter::run(Module &M, ModuleAnalysisManager &) {
-    return runOnModule(M);
-}
-
-// why?? should the class construct this already?
-AnalysisKey StaticCallCounter::Key;
-
 // New PM Registration
 
-PassPluginLibraryInfo getStaticCallCounterPluginInfo() {
-    return {LLVM_PLUGIN_API_VERSION, "static-cc", LLVM_VERSION_STRING,
-            [](PassBuilder &PB) {
-                // #1 Registration for "opt -passes=print<static-cc>"
-                PB.registerPipelineParsingCallback(
-                        [&](StringRef Name, ModulePassManager &MPM, 
-                            ArrayRef<PassBuilder::PipelineElement>) {
-                        if (Name == "print<static-cc>") {
-                            MPM.addPass(StaticCallCounterPrinter(errs()));
-                            return true;
-                            }
-                            return false;
-                            });
-                // #2 Registration for "MAM.getResult<StaticCallCounter>(Module)"
-                PB.registerAnalysisRegistrationCallback(
-                        [](ModuleAnalysisManager &MAM) {
-                        MAM.registerPass([&] { return StaticCallCounter(); });
-                        });
-            }};
-};
-                            
-
-extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo
-llvmGetPassPluginInfo() {
-    return getStaticCallCounterPluginInfo();
+llvm::PassPluginLibraryInfo getOpcodeCounterPluginInfo() {
+    return {
+        LLVM_PLUGIN_API_VERSION, "OpcodeCounter", LLVM_VERSION_STRING, 
+        [](PassBuilder &PB) {
+            // #1 registration for "opt -passes=print<opcode-counter>"
+            // Register OpcodeCounterPrinter so that it can be used when 
+            // specifying pass pipelines with '-passes='
+            PB.registerPipelineParsingCallback(
+                [&](StringRef Name, FunctionPassManager &FPM, 
+                    ArrayRef<PassBuilder::PipelineElement>) {
+                    if (Name == "print<opcode-counter>") {
+                        FPM.addPass(OpcodeCounterPrinter(llvm::errs()));
+                        return true;
+                    }
+                    return false; 
+                    });
+            // #2 registration for "-O{1|2|3|s}"
+            PB.registerVectorizerStartEPCallback(
+                [](llvm::FunctionPassManager &PM, 
+                    llvm::OptimizationLevel Level) {
+                    PM.addPass(OpcodeCounterPrinter(llvm::errs()));
+                });
+            // #3 registration for "FAM.getResult<OpcodeCounter>(Func)"
+            PB.registerAnalysisRegistrationCallback(
+                    [](FunctionAnalysisManager &FAM) {
+                    FAM.registerPass([&] { return OpcodeCounter(); });
+                    });
+        }};
 }
 
+extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo 
+llvmGetPassPluginInfo() {
+    return getOpcodeCounterPluginInfo(); 
+}
 
-// Helper functions
-static void printStaticCCResult(raw_ostream &OutS, const ResultStaticCC &DirectCalls) {
-    OutS << "==============================================="
+// Helper functions - implementation 
+static void printOpcodeCounterResult(raw_ostream &OutS, 
+        const ResultOpCounter &OpcodeMap, StringRef name) {
+    OutS << "================================================="
          << "\n";
-    OutS << "static analysis results\n";
-    OutS << "==============================================="
-         << "\n";
-    const char *str1 = "NAME";
-    const char *str2 = "#N DIRECT CALLS";
+    OutS << "OpcodeCounter results " << name << "\n";
+    OutS << "=================================================\n";
+    const char *str1 = "OPCODE";
+    const char *str2 = "#TIMES USED";
     OutS << format("%-20s %-10s\n", str1, str2);
-    OutS << "-----------------------------------------------"
+    OutS << "-------------------------------------------------"
          << "\n";
-    for (auto &CallCount : DirectCalls) {
-        OutS << format("%-20s %-10lu\n", CallCount.first->getName().str().c_str(),
-                CallCount.second);
+    for (auto &Inst : OpcodeMap) {
+    OutS << format("%-20s %-10lu\n", Inst.first().str().c_str(),
+                           Inst.second);
     }
-    OutS << "-----------------------------------------------"
+    OutS << "-------------------------------------------------"
          << "\n\n";
 }
-

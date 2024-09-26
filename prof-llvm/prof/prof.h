@@ -1,52 +1,38 @@
-#ifndef LLVM_STATICCALLCOUNTER_H
-#define LLVM_STATICCALLCOUNTER_H
+#ifndef LLVM_OPCOUNTER_H
+#define LLVM_OPCOUNTER_H
 
-#include "llvm/ADT/MapVector.h"
-#include "llvm/IR/AbstractCallSite.h"
-#include "llvm/IR/Module.h"
+#include "llvm/ADT/StringMap.h"
+#include "llvm/IR/Function.h"
 #include "llvm/IR/PassManager.h"
 #include "llvm/Pass.h"
-#include "llvm/IR/InstrTypes.h"
+#include "llvm/Support/raw_ostream.h"
 
-namespace llvm {
-    // create an alias for this specific MapVector type
-    using ResultStaticCC = MapVector<const Function *, unsigned>;
-struct StaticCallCounter : public AnalysisInfoMixin<StaticCallCounter> {
-    using Result = ResultStaticCC; 
-    Result run(Module &M, ModuleAnalysisManager &);
-    Result runOnModule(Module &M);
-    
+
+using ResultOpCounter = llvm::StringMap<unsigned>;
+
+struct OpcodeCounter : public llvm::AnalysisInfoMixin<OpcodeCounter> {
+    using Result = ResultOpCounter; 
+    OpcodeCounter::Result run(llvm::Function &F, llvm::FunctionAnalysisManager &);
+    OpcodeCounter::Result generateOpcodeMap(llvm::Function &F);
+
     static bool isRequired() { return true; }
 
     private: 
-    // a special type used by analysis passes to provide an address that 
-    // identifies that particular analysis pass type
-    static AnalysisKey Key;
-    // why??? 
-    friend struct AnalysisInfoMixin<StaticCallCounter>;
-
+    
+        static llvm::AnalysisKey Key; 
+        friend struct llvm::AnalysisInfoMixin<OpcodeCounter>;
 };
 
-// printer class
-class StaticCallCounterPrinter : public PassInfoMixin<StaticCallCounterPrinter> {
+class OpcodeCounterPrinter : public llvm::PassInfoMixin<OpcodeCounterPrinter> {
     public: 
-        explicit StaticCallCounterPrinter(raw_ostream &OutS) : OS(OutS) {}
-        PreservedAnalyses run(Module &M, ModuleAnalysisManager &MAM);
+        explicit OpcodeCounterPrinter(llvm::raw_ostream &OutS) : OS(OutS) {}
+        llvm::PreservedAnalyses run(llvm::Function &Func, 
+                llvm::FunctionAnalysisManager &FAM);
 
         static bool isRequired() { return true; }
+
     private: 
-        raw_ostream &OS;
+        llvm::raw_ostream &OS; 
 };
 
-} // namespace llvm
-
-#endif // LLVM_STATICCALLCOUNTER_H
-
-
-/*
-   Open questions
-   ------------------
-   1. What is the run member function supposed to return? 
-   2. Why are we declaring the base class as a friend on line 22
-
-*/
+#endif // LLVM_OPCOUNTER_H
